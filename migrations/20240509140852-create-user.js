@@ -22,6 +22,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      role: {
+        type: Sequelize.ENUM('member', 'admin'),
+        allowNull: false,
+        defaultValue: 'member',
+      },
     });
   },
   async down(queryInterface, Sequelize) {
