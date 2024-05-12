@@ -12,6 +12,7 @@ module.exports = {
       username: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       email: {
         type: Sequelize.STRING,
@@ -22,10 +23,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      role: {
-        type: Sequelize.ENUM('member', 'admin'),
+      isAdmin: {
+        type: Sequelize.ENUM('true', 'false'),
         allowNull: false,
-        defaultValue: 'member',
+        defaultValue: 'false',
       },
     });
   },

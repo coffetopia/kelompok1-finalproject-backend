@@ -1,29 +1,21 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { where } = require('sequelize');
 const userModel = require('../models').user;
+const { encryption, compare, getToken } = require('../services/security');
+const response = require('../services/response');
 
-async function registerUser(req, res) {
+async function register(req, res) {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const hashedPassword = await encryption(req.body.password);
 
     const user = {
       ...req.body,
       password: hashedPassword,
     };
 
-    const success = await userModel.create(user);
-    res.status(201).json({
-      status: true,
-      message: "User created successfully",
-    });
+    await userModel.create(user);
+    response(201, true, user, 'User created successfully', res);
   } catch (error) {
     console.log(error);
-    res.status(400).json({
-      status: false,
-      message: "Failed to register new user",
-    });
+    response(400, false, error, 'Failed to register new user', res);
   }
 };
 
@@ -36,41 +28,29 @@ async function login(req, res) {
       },
     });
 
-    console.log(user);
-
     if(user) {
-      const isPassword = await bcrypt.compare(password, user.password);
-      if(isPassword) {
-        const token = jwt.sign({ username: user.username }, process.env.JWT_SCREET, {
-          expiresIn: 1 * 24 * 60 * 60 * 1000,
-        });
+      const isValid = await compare(password, user.password);
+      if(isValid) {
+        const token = getToken(user.username);
 
-        res.header("authorization", 'Bearer ' + token);
-        
-        res.status(201).json({
-          status: true,
-          username: user.username,
-          email: user.email,
+        res.header("authorization", token);
+
+        const { username, email } = user;
+        const data = {
+          username,
+          email,
           token,
-        });
+        }
+        
+        response(201, true, data, 'Authentication success', res);
       } else {
-        res.status(401).json({
-          status: false,
-          message: "Authentication failed",
-        });
+        response(401, false, '', 'Authentication failed', res);
       }} else {
-        res.status(401).json({
-          status: false,
-          message: "Authentication failed",
-        });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(401).json({
-      status: false,
-      message: "Authentication failed",
-    });
+        response(401, false, '', 'Authentication failed', res);
+      }
+    } catch (error) {
+      response(401, false, error, 'Authentication failed', res);
   }
 }
 
-module.exports = { registerUser, login };
+module.exports = { register, login };
