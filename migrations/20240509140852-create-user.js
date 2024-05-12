@@ -24,9 +24,9 @@ module.exports = {
         allowNull: false,
       },
       isAdmin: {
-        type: Sequelize.ENUM('true', 'false'),
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: 'false',
+        defaultValue: false,
       },
     });
   },

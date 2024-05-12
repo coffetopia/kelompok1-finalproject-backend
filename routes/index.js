@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../middlewares/auth');
-const { register, login } = require('../controllers/userController');
+const auth = require('../middlewares/auth');
+const { register, login } = require('../controllers/authenticationController');
+const { showProfile } = require('../controllers/userController');
 
 router.get('/', (req, res) => {
   res.send('Home');
@@ -10,7 +11,9 @@ router.get('/', (req, res) => {
 router.post('/register', register);
 router.post('/login', login);
 
-router.get('/dashboard', verifyToken, (req, res) => {
+router.get('/profile', auth, showProfile);
+
+router.get('/dashboard', auth, (req, res) => {
   res.sendStatus(200);
 });
 

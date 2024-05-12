@@ -1,13 +1,11 @@
 const jwt = require("jsonwebtoken");
+const response = require('../services/response');
 
-function verifyToken (req, res, next) {
+function auth(req, res, next) {
   const token = req.header('authorization').split(' ');
-  console.log(token);
 
   if(!token) {
-    return res.status(403).send({
-      message: "No token provided!",
-    });
+    response(403, false, '', 'No token provided!', res);
   }
 
   jwt.verify(token[1], process.env.JWT_SCREET, (err, decoded) => {
@@ -16,9 +14,8 @@ function verifyToken (req, res, next) {
         message: "Unauthorized!",
       });
     }
-    console.log(decoded);
     next();
   });
 }
 
-module.exports = verifyToken;
+module.exports = auth;
