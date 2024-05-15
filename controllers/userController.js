@@ -1,11 +1,11 @@
 const userModel = require('../models').user;
 const response = require('../services/response');
-const jwt = require('jsonwebtoken');
+const getUsername = require('../services/getUsername');
+const { encryption } = require('../services/security');
 
 async function showProfile(req, res) {
   try {
-    const token = req.header('authorization').split(' ');
-    const { username } = jwt.verify(token[1], process.env.JWT_SCREET);
+    const username = getUsername(req);
 
     const user = await userModel.findOne({
       where: {
@@ -27,4 +27,50 @@ async function showProfile(req, res) {
   }
 }
 
-module.exports = { showProfile };
+async function editUser(req, res) {
+  try {
+    const usernameLogged = getUsername(req);
+    const { username, email, password } = req.body;
+    
+    const usernameRegistered = await userModel.findOne({
+      where: {
+        username,
+      },
+    });
+
+    const emailRegistered = await userModel.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (usernameRegistered !== null) {
+      return response(403, false, '', 'This username was registered', res);
+    }
+    
+    if (emailRegistered !== null) {
+      return response(403, false, '', 'This email was registered', res);
+    }
+
+    const hashedPassword = await encryption(password);
+
+    const update = await userModel.update(
+      {
+        username,
+        password: hashedPassword,
+        email,
+      },
+      {
+        where: {
+          username: usernameLogged,
+        },
+      },
+    );
+
+    response(201, true, update, 'User was edited successfully');
+  } catch (error) {
+    response(500, false, error, 'Server Error', res);
+  }
+}
+
+module.exports = { showProfile, editUser };
