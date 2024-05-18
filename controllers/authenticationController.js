@@ -1,17 +1,15 @@
-const userModel = require('../models').user;
+const { User } = require('../models');
 const { encryption, compare, getToken } = require('../services/security');
 const response = require('../services/response');
 
 async function register(req, res) {
   try {
     const hashedPassword = await encryption(req.body.password);
-
     const user = {
       ...req.body,
       password: hashedPassword,
     };
-
-    await userModel.create(user);
+    await User.create(user);
     response(201, true, user, 'User created successfully', res);
   } catch (error) {
     console.log(error);
@@ -22,26 +20,22 @@ async function register(req, res) {
 async function login(req, res) {
   try {
     const { username, password } = req.body;
-    const user = await userModel.findOne({
+    const user = await User.findOne({
       where: {
         username,
       },
     });
-
     if(user) {
       const isValid = await compare(password, user.password);
       if(isValid) {
         const token = getToken(user.username);
-
         res.header("authorization", token);
-
         const { username, email } = user;
         const data = {
           username,
           email,
           token,
-        }
-        
+        } 
         response(201, true, data, 'Authentication success', res);
       } else {
         response(401, false, '', 'Authentication failed', res);
