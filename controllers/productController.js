@@ -43,8 +43,8 @@ const createProduct = async (req, res) => {
     const product = {
       ...req.body,
     }
-    const create = await Product.create(product);
-    response(201, true, create, 'Succes to add product', res);
+    const newProduct = await Product.create(product);
+    response(201, true, newProduct, 'Succes to add new product', res);
   } catch (error) {
     console.error(error);
     response(400, false, error, 'Failed to add product', res);
