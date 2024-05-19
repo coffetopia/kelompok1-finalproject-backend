@@ -1,3 +1,5 @@
+/*eslint-disable no-unused-vars*/
+
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -22,7 +24,6 @@ module.exports = {
       },
       category_id: {
         type: Sequelize.INTEGER,
-        unique: true,
         references: {
           model: 'Categories',
           key: 'id',
