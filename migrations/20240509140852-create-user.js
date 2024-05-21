@@ -25,10 +25,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      isAdmin: {
+      admin: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+      },
+      refresh_token: {
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
     });
   },

@@ -11,10 +11,17 @@ async function compare(inputPassword, password) {
   return bcrypt.compare(inputPassword, password);
 }
 
-function getToken(username) {
-  return jwt.sign({ username: username }, process.env.JWT_SCREET, {
+function getToken(username, type) {
+  if(type == 'access') {
+    return jwt.sign({ username: username }, process.env.JWT_SCREET, {
+      expiresIn: '20s',
+    });
+  }
+  return jwt.sign({ username: username }, process.env.JWT_REFRESH_SCREET, {
     expiresIn: '1d',
   });
 }
+
+// secure: true
 
 module.exports = { encryption, compare, getToken };
