@@ -12,7 +12,6 @@ async function register(req, res) {
     await User.create(user);
     response(201, true, user, 'User created successfully', res);
   } catch (error) {
-    console.log(error);
     response(400, false, error, 'Failed to register new user', res);
   }
 };
@@ -29,7 +28,8 @@ async function login(req, res) {
       const isValid = await compare(password, user.password);
       if(isValid) {
         const token = getToken(user.username);
-        res.header("authorization", token);
+        res.cookie('token', token);
+        console.log(token);
         const { username, email } = user;
         const data = {
           username,
