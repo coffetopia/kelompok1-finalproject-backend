@@ -1,5 +1,5 @@
 const { User } = require('../models');
-const { encryption, compare, getToken } = require('../services/security');
+const { encryption, compare, getAccessToken, getRefreshToken } = require('../services/security');
 const response = require('../services/response');
 const jwt = require('jsonwebtoken');
 
@@ -29,29 +29,30 @@ async function login(req, res) {
     if(user) {
       const isValid = await compare(password, user.password);
       if(isValid) {
-        const accessToken = getToken(user.username, 'access');
-        const refreshToken = getToken(user.username, 'refresh');
-
-        const update = await user.update({ refresh_token: refreshToken });
-        
-        console.log(update);
+        const accessToken = jwt.sign({ username: user.username }, process.env.JWT_SCREET, {
+          expiresIn: '30s',
+        });
+        const refreshToken = jwt.sign({ username: user.username }, process.env.JWT_REFRESH_SCREET, {
+          expiresIn: '1d',
+        });
+        await user.update({ refresh_token: refreshToken });
         res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          secure: true,
-          maxAge: 1000 * 60 * 60 * 24,
+          // secure: true,
+          maxAge: 24 * 60 * 60 * 1000,
         });
-
-        const { username, email } = user;
+        const { username, email, role } = user;
         const data = {
           username,
           email,
+          roles: [ role ],
           accessToken,
         } 
-        response(201, true, data, 'Authentication success', res);
+        return response(201, true, data, 'Authentication success', res);
       } else {
-        response(401, false, '', 'Authentication failed', res);
+        return response(401, false, '', 'Authentication failed', res);
       }} else {
-        response(401, false, '', 'Authentication failed', res);
+        return response(401, false, '', 'Authentication failed', res);
       }
     } catch (error) {
       response(401, false, error, 'Authentication failed', res);
@@ -67,26 +68,40 @@ const refreshToken = async (req, res) => {
         refresh_token: refreshToken,
       },
     });
-    console.log(user);
-    if(!user) response(403, false, '', 'Authentication failed', res);
+    if(!user) return response(403, false, '', 'Authentication failed', res);
     jwt.verify(refreshToken, process.env.JWT_REFRESH_SCREET, (err, decode) => {
       if(err) return response(403, false, err, 'Authentication failed', res);
-      const username = 
+      const username = user.username;
+      const accessToken = jwt.sign({ username }, process.env.JWT_SCREET, {
+        expiresIn: '30s',
+      });
+      const data = {
+        roles: [user.role],
+        accessToken,
+      }
+      return response(200, true, data, 'Token verified', res);
     });
   } catch (error) {
-    response(401, false, error, 'Authentication failed', res);
+    return response(401, false, error, 'Authentication failed', res);
   }
 }
 
 const logout = async (req, res) => {
   try {
-    const token = req.cookies.refreshToken;
-    if(!token) return response(204, false, '', 'Logout failed, token not found', res);
-    res.header('authorization', '');
-    res.send(200);
+    const refreshToken = req.cookies.refreshToken;
+    if(!refreshToken) return response(204, false, '', 'Logout failed, token not found', res);
+    const user = await User.findOne({
+      where: {
+        refresh_token: refreshToken,
+      },
+    });
+    if(!user) return response(204, false, '', 'Logout failed, something wrong with token', res);
+    await user.update({ refresh_token: null });
+    res.clearCookie('refreshToken');
+    return response(200, true, '', 'Success Logout', res)
   } catch (error) {
-    response(500, false, error, 'Logout failed, something wrong with server', res);
+    return response(500, false, error, 'Logout failed, something wrong with server', res);
   }
 }
 
-module.exports = { register, login, logout };
+module.exports = { register, login, logout, refreshToken };
