@@ -25,10 +25,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      isAdmin: {
-        type: Sequelize.BOOLEAN,
+      role: {
+        type: Sequelize.ENUM('admin', 'member'),
         allowNull: false,
-        defaultValue: false,
+        defaultValue: 'member',
+      },
+      refresh_token: {
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
     });
   },
