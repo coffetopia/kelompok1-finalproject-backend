@@ -7,13 +7,8 @@ const bodyParser = require('body-parser')
 const routes = require('./routes');
 const cookieParser = require('cookie-parser');
 
-// app.use(cors({
-//   origin: process.env.FRONTEND_HOST,
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   credentials: true,
-// }));
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: [process.env.FRONTEND_HOST],
   methods: ['POST', 'GET', 'PUT', 'DELETE'],
   credentials: true,
 }));
