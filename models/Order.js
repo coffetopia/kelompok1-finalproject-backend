@@ -17,10 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_Id',
         as: 'user',
       });
-      Order.hasMany(models.ProductList, {
-        foreignKey: 'order_Id',
-        as: 'productList',
-      });
+      // Order.hasMany(models.ProductList, {
+      //   foreignKey: 'order_Id',
+      //   as: 'productList',
+      // });
     }
   }
 
