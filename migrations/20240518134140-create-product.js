@@ -28,8 +28,20 @@ module.exports = {
           model: 'Categories',
           key: 'id',
         },
-        onDelete: 'SET NULL',
+        // onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      deletedAt: {
+        type: Sequelize.DATE
       },
     });
   },
