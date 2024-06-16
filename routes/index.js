@@ -40,7 +40,6 @@ router.get('/dashboard', auth, (req, res) => {
 router.get('/products', getProducts);
 router.get('/products/category/:categoryId', getProductsByCategory);
 router.post('/product', createProduct);
-// router.post('/product', upload.single('image'), createProduct);
 router.put('/products/:id', updateProduct);
 router.get('/products/:id', getProductById);
 router.delete('/products/:id', deleteProduct);
