@@ -22,14 +22,29 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
+      image: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       category_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Categories',
           key: 'id',
         },
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      deletedAt: {
+        type: Sequelize.DATE
       },
     });
   },

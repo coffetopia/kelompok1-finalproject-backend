@@ -26,6 +26,7 @@ async function login(req, res) {
         username,
       },
     });
+    console.log(user);
     if(user) {
       const isValid = await compare(password, user.password);
       if(isValid) {
@@ -45,7 +46,7 @@ async function login(req, res) {
         const data = {
           username,
           email,
-          roles: [ role ],
+          role,
           accessToken,
         } 
         return response(201, true, data, 'Authentication success', res);

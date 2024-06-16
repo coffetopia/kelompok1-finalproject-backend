@@ -11,22 +11,11 @@ const getCategories = async (req, res) => {
   }
 }
 
-const getCategoryProduct = async (req, res) => {
+const getDetailCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const products = await Product.findAll({
-      where: {
-        category_id: id,
-      },
-      include: {
-        model: Category,
-        as: 'category',
-      },
-      attributes: {
-        exclude: ['category_id'],
-      },
-    });
-    response(200, true, products, 'Success get product by category', res);
+    const category = await Category.findByPk(id);
+    response(200, true, category, 'Success get product by category', res);
   } catch (error) {
     console.error(error);
     response(400, false, error, 'Failed to get the product', res);
@@ -65,9 +54,45 @@ const updateCategory = async (req, res) => {
   }
 }
 
+const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findByPk(id);
+    if(!category) {
+      return response(400, false, '', 'Failed to edit category, id category not found', res);
+    }
+    const deletedCategory = await category.destroy();
+    response(201, true, deletedCategory, 'Success deleted category', res);
+
+  } catch (error) {
+    console.error(error);
+    response(400, false, error, 'Failed to edit category', res);
+
+  }
+}
+
+const restoreCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findByPk(id, { paranoid: false });
+    if(!category) {
+      return response(400, false, '', 'Failed to edit category, id category not found', res);
+    }
+    const deletedCategory = await category.restore();
+    response(201, true, deletedCategory, 'Success restore deleted category', res);
+
+  } catch (error) {
+    console.error(error);
+    response(400, false, error, 'Failed to edit category', res);
+
+  }
+}
+
 module.exports = {
   getCategories,
-  getCategoryProduct,
+  getDetailCategory,
   createCategory,
   updateCategory,
+  deleteCategory,
+  restoreCategory,
 };

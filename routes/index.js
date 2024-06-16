@@ -5,15 +5,20 @@ const { register, login, logout, refreshToken } = require('../controllers/authen
 const { showProfile } = require('../controllers/userController');
 const {
   getProducts,
+  getProductsByCategory,
   getProductById,
   createProduct,
   updateProduct,
+  deleteProduct,
+  restoreProduct,
 } = require('../controllers/productController');
 const {
   getCategories,
   createCategory,
-  getCategoryProduct,
+  getDetailCategory,
   updateCategory,
+  deleteCategory,
+  restoreCategory,
  } = require('../controllers/categoryController');
 
 router.get('/', (req, res) => {
@@ -22,7 +27,8 @@ router.get('/', (req, res) => {
 
 router.post('/register', register);
 router.post('/login', login);
-router.delete('/logout', auth, logout);
+// router.delete('/logout', auth, logout);
+router.delete('/logout', logout);
 router.get('/token', refreshToken);
 
 router.get('/profile', auth, showProfile);
@@ -32,13 +38,19 @@ router.get('/dashboard', auth, (req, res) => {
 });
 
 router.get('/products', getProducts);
+router.get('/products/category/:categoryId', getProductsByCategory);
 router.post('/product', createProduct);
+// router.post('/product', upload.single('image'), createProduct);
 router.put('/products/:id', updateProduct);
 router.get('/products/:id', getProductById);
+router.delete('/products/:id', deleteProduct);
+router.post('/products/restore/:id', restoreProduct);
 
 router.get('/categories', getCategories);
-router.get('/categories/:id', getCategoryProduct);
+router.get('/categories/:id', getDetailCategory);
 router.post('/category', createCategory);
 router.put('/categories/:id', updateCategory);
+router.delete('/categories/:id', deleteCategory);
+router.post('/categories/restore/:id', restoreCategory);
 
 module.exports = router;
