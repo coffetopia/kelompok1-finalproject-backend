@@ -81,7 +81,7 @@ const createProduct = async (req, res) => {
       const product = {
         ...req.body,
       }
-      const image = req.file.filename;
+      const image = req?.file?.filename;
       const data = {
         ...product,
         image,
@@ -106,7 +106,7 @@ const updateProduct = async (req, res) => {
       const edit = {
         ...req.body
       }
-      const image = req.file.filename;
+      const image = req?.file?.filename;
       const data = {
         ...product,
         image,
