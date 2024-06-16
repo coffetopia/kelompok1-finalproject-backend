@@ -1,5 +1,6 @@
 const { Product, Category } = require("../models");
 const response = require("../services/response");
+const upload = require('../middlewares/upload');
 
 const getProducts = async (req, res) => {
   try {
@@ -12,7 +13,13 @@ const getProducts = async (req, res) => {
         exclude: ['category_id'],
       },
     });
-    response(200, true, products, 'Success get all products', res);
+    const data = products.map((product) => {
+      return {
+        ...product.toJSON(),
+        image: `http://localhost:3000/uploads/images/products/${product.image}`,
+      };
+    });
+    response(200, true, data, 'Success get all products', res);
   } catch (error) {
     console.error(error);
     response(400, false, error, 'Failed to get products', res);
@@ -31,7 +38,13 @@ const getProductsByCategory = async (req, res) => {
         category_id: categoryId,
       },
     });
-    return response(200, true, products, 'Success get product by id category', res);
+    const data = products.map((product) => {
+      return {
+        ...product.toJSON(),
+        image: `http://localhost:3000/uploads/images/products/${product.image}`,
+      };
+    });
+    return response(200, true, data, 'Success get product by id category', res);
   } catch (error) {
     console.error(error);
     response(400, false, error, 'Failed to get products', res);
@@ -47,7 +60,11 @@ const getProductById = async (req, res) => {
         as: 'category',
       },
     });
-    response(200, true, product, 'Success get product by id', res);
+    const data = {
+      ...product.toJSON(),
+      image: `http://localhost:3000/uploads/images/products/${product.image}`,
+    }
+    response(200, true, data, 'Success get product by id', res);
   } catch (error) {
     console.error(error);
     response(400, false, error, 'Failed to get the product', res)
@@ -55,34 +72,56 @@ const getProductById = async (req, res) => {
 }
 
 const createProduct = async (req, res) => {
-  try {
-    const product = {
-      ...req.body,
+  upload(req, res, async (err) => {
+    if (err) {
+      console.error(err);
+      return response(400, false, err, 'Failed to create new product, image error', res);
     }
-    const newProduct = await Product.create(product);
-    response(201, true, newProduct, 'Succes to add new product', res);
-  } catch (error) {
-    console.error(error);
-    response(400, false, error, 'Failed to add product', res);
-  }
+    try {
+      const product = {
+        ...req.body,
+      }
+      const image = req.file.filename;
+      const data = {
+        ...product,
+        image,
+      }
+      const newProduct = await Product.create(data);
+      response(201, true, newProduct, 'Succes to add new product', res);
+    } catch (error) {
+      console.error(error);
+      response(400, false, error, 'Failed to add product', res);
+    }
+  });
 }
 
 const updateProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const edit = {
-      ...req.body
+  upload(req, res, async (err) => {
+    if (err) {
+      console.error(err);
+      return response(400, false, err, 'Failed to create new product, image error', res);
     }
-    const product = await Product.findByPk(id);
-    if (!product) {
-      return response(400, false, '', 'Failed to edit product, id product not found', res);
+    try {
+      const { id } = req.params;
+      const edit = {
+        ...req.body
+      }
+      const image = req.file.filename;
+      const data = {
+        ...product,
+        image,
+      }
+      const product = await Product.findByPk(id);
+      if (!product) {
+        return response(400, false, '', 'Failed to edit product, id product not found', res);
+      }
+      const editedProduct = await product.update(data);
+      response(201, true, editedProduct, 'Success edited product', res);
+    } catch (error) {
+      console.error(error);
+      response(400, false, error, 'Failed to edit product', res);
     }
-    const editedProduct = await product.update(edit);
-    response(201, true, editedProduct, 'Success edited product', res);
-  } catch (error) {
-    console.error(error);
-    response(400, false, error, 'Failed to edit product', res);
-  }
+  });
 }
 
 const deleteProduct = async (req, res) => {
