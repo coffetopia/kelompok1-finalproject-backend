@@ -108,7 +108,7 @@ const updateProduct = async (req, res) => {
       }
       const image = req?.file?.filename;
       const data = {
-        ...product,
+        ...edit,
         image,
       }
       const product = await Product.findByPk(id);
