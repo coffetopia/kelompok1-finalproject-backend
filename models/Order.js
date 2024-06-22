@@ -1,9 +1,7 @@
 'use strict';
-
 const {
   Model
 } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
     /**
@@ -12,48 +10,23 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
       Order.belongsTo(models.User, {
-        foreignKey: 'user_Id',
+        foreignKey: 'user_id',
         as: 'user',
-      });
-      // Order.hasMany(models.ProductList, {
-      //   foreignKey: 'order_Id',
-      //   as: 'productList',
-      // });
+      })
     }
   }
-
   Order.init({
-    user_Id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'Users', // Name of the target model
-        key: 'id', // Key in the target model that we're referencing
-      },
-      allowNull: false,
-    },
-    totalAmount: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    paymentMethod: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    orderStatus: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    orderDate: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
+    user_id: DataTypes.INTEGER,
+    products: DataTypes.JSON,
+    amount: DataTypes.INTEGER,
+    table_number: DataTypes.INTEGER,
+    dining_option: DataTypes.STRING,
+    note: DataTypes.TEXT,
+    status: DataTypes.ENUM('pending', 'success', 'failed'),
   }, {
     sequelize,
     modelName: 'Order',
-    timestamps: false,
   });
-
   return Order;
 };
