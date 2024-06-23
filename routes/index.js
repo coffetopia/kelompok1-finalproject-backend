@@ -20,6 +20,7 @@ const {
   deleteCategory,
   restoreCategory,
  } = require('../controllers/categoryController');
+const { createOrder, getOrders } = require('../controllers/orderController');
 
 router.get('/', (req, res) => {
   res.send('Home');
@@ -51,5 +52,8 @@ router.post('/category', createCategory);
 router.put('/categories/:id', updateCategory);
 router.delete('/categories/:id', deleteCategory);
 router.post('/categories/restore/:id', restoreCategory);
+
+router.post('/checkout', createOrder);
+router.get('/orders', getOrders);
 
 module.exports = router;

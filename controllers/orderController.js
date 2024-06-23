@@ -1,49 +1,45 @@
-const { Order, ProductList, Product, User } = require("../models");
+const { Order, User } = require("../models");
 const response = require("../services/response");
 
-exports.createOrder = async (req, res) => {
+const createOrder = async (req, res) => {
   try {
-    const { user_Id, products, totalAmount, paymentMethod, orderStatus } = req.body;
+    const { username, order, amount, tableNumber, diningOption, note } = req.body;
 
-    // Buat pesanan baru
-    const order = await Order.create({ user_Id, totalAmount, paymentMethod, orderStatus });
-
-    // Buat daftar produk
-    const productListPromises = products.map(async (product) => {
-      const productItem = {
-        order_Id: order.id,
-        product_Id: product.product_Id,
-        quantity: product.quantity
-      };
-      return await ProductList.create(productItem);
+    const user = await User.findOne({
+      where: {
+        username,
+      },
     });
 
-    await Promise.all(productListPromises);
+    const products = JSON.stringify(order);
 
-    response(201, true, order, 'Order created successfully', res);
+    const data = await Order.create({
+      user_id: user.id,
+      products,
+      amount,
+      table_number: tableNumber,
+      note,
+      dining_option: diningOption,
+      orderStatus: 'pending',
+    });
+
+    response(201, true, data, 'Order created successfully', res);
   } catch (error) {
     console.error(error);
     response(500, false, error, 'Failed to create order', res);
   }
 };
 
-exports.getOrders = async (req, res) => {
+const getOrders = async (req, res) => {
   try {
     const orders = await Order.findAll({
-      include: [
-        {
-          model: User,
-          as: 'user'
-        },
-        {
-          model: ProductList,
-          as: 'productList',
-          include: {
-            model: Product,
-            as: 'product'
-          }
-        }
-      ]
+      include: {
+        model: User,
+        as: 'user',
+      },
+      attributes: {
+        exclude: ['user_id'],
+      },
     });
     response(200, true, orders, 'Success fetch all orders', res);
   } catch (error) {
