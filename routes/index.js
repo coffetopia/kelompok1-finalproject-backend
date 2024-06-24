@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middlewares/auth');
-const { register, login, logout, refreshToken } = require('../controllers/authenticationController');
+const {
+  register,
+  login,
+  logout,
+  refreshToken,
+} = require('../controllers/authenticationController');
 const { showProfile } = require('../controllers/userController');
 const {
   getProducts,
@@ -19,8 +24,12 @@ const {
   updateCategory,
   deleteCategory,
   restoreCategory,
- } = require('../controllers/categoryController');
-const { createOrder, getOrders } = require('../controllers/orderController');
+} = require('../controllers/categoryController');
+const {
+  createOrder,
+  getOrders,
+  getOrdersById,
+} = require('../controllers/orderController');
 
 router.get('/', (req, res) => {
   res.send('Home');
@@ -55,5 +64,6 @@ router.post('/categories/restore/:id', restoreCategory);
 
 router.post('/checkout', createOrder);
 router.get('/orders', getOrders);
+router.get('/orders/:id', getOrdersById);
 
 module.exports = router;
